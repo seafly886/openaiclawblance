@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # 创建数据目录并设置权限
-RUN mkdir -p /data && chown -R nobody:nogroup /data
+RUN mkdir -p /data && chmod 777 /data
 
 # 安装系统依赖
 # RUN apt-get update && apt-get install -y \
@@ -20,7 +20,7 @@ COPY ./requirements.txt /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 复制应用代码
-COPY ./app /app
+COPY ./app /app/app
 
 # 创建非root用户
 # RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
@@ -35,6 +35,7 @@ VOLUME ["/data"]
 # 设置环境变量
 ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
+ENV DATABASE_URL=sqlite:////data/app.db
 
 # 启动命令
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]

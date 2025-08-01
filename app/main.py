@@ -21,4 +21,4 @@ if __name__ == '__main__':
     
     # 使用uvicorn启动应用
     import uvicorn
-    uvicorn.run("main:app", host=host, port=port, reload=debug)
+    uvicorn.run("app.main:app", host=host, port=port, reload=debug)
