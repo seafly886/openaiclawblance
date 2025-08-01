@@ -1,0 +1,250 @@
+/* 全局样式 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* 导航栏样式 */
+.navbar-brand {
+    font-weight: bold;
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* 表格样式 */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* 状态指示器 */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-active {
+    background-color: #198754;
+}
+
+.status-inactive {
+    background-color: #6c757d;
+}
+
+.status-error {
+    background-color: #dc3545;
+}
+
+/* 聊天容器样式 */
+#chat-container {
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.chat-message.user {
+    background-color: #0d6efd;
+    color: white;
+    margin-left: auto;
+    text-align: right;
+}
+
+.chat-message.assistant {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.chat-message .timestamp {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+/* 聊天历史样式 */
+.chat-history-item {
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chat-history-item:hover {
+    background-color: #f8f9fa;
+}
+
+.chat-history-item:last-child {
+    border-bottom: none;
+}
+
+/* 图表容器样式 */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 表单样式 */
+.form-control, .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 徽章样式 */
+.badge {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #0d6efd;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 提示消息样式 */
+.toast {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-header {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.toast-body {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .chat-message {
+        max-width: 90%;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
