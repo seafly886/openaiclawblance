@@ -13,6 +13,7 @@ class ChatHistory(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     key_id = db.Column(db.Integer, db.ForeignKey('keys.id'), nullable=False)
+    model_id = db.Column(db.Integer, db.ForeignKey('models.id'), nullable=True)
     model = db.Column(db.String(100), nullable=False)
     request = db.Column(db.Text, nullable=False)  # JSON格式存储请求内容
     response = db.Column(db.Text, nullable=True)  # JSON格式存储响应内容
@@ -29,6 +30,7 @@ class ChatHistory(db.Model):
         return {
             'id': self.id,
             'key_id': self.key_id,
+            'model_id': self.model_id,
             'model': self.model,
             'request': self.request,
             'response': self.response,
@@ -37,13 +39,14 @@ class ChatHistory(db.Model):
         }
     
     @staticmethod
-    def create_record(key_id, model, request, response=None, tokens_used=0):
+    def create_record(key_id, model, request, response=None, tokens_used=0, model_id=None):
         """
         创建聊天历史记录
         """
         chat_history = ChatHistory(
             key_id=key_id,
             model=model,
+            model_id=model_id,
             request=request,
             response=response,
             tokens_used=tokens_used
