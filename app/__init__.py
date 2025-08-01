@@ -22,7 +22,7 @@ def create_app():
     
     # 配置应用
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////data/app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['OPENAI_API_BASE_URL'] = os.getenv('OPENAI_API_BASE_URL', 'https://api.openai.com/v1')
     
