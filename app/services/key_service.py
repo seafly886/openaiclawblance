@@ -150,7 +150,12 @@ class KeyService:
         key.update_usage()
         
         # 更新模型使用统计
-        usage_stat = UsageStat.get_or_create(key_id, model)
+        # 首先获取模型ID
+        from app.models.model import Model
+        model_obj = Model.query.filter_by(model_name=model).first()
+        model_id = model_obj.id if model_obj else None
+        
+        usage_stat = UsageStat.get_or_create(key_id, model, model_id)
         usage_stat.update_usage(tokens_used)
         
         return True

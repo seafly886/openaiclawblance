@@ -44,6 +44,7 @@ def chat():
         chat_record = ChatHistory.create_record(
             key_id=0,  # 先设置为0，后面更新
             model=model_name,
+            model_id=model.id,
             request=json.dumps(data)
         )
         
@@ -126,6 +127,7 @@ def chat_completions():
         chat_record = ChatHistory.create_record(
             key_id=0,  # 先设置为0，后面更新
             model=model_name,
+            model_id=model.id,
             request=json.dumps(data)
         )
         

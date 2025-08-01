@@ -50,6 +50,9 @@ def create_app():
     def index():
         return app.send_static_file('index.html')
     
+    # 设置静态文件目录
+    app.static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    
     # 健康检查接口
     @app.route('/health')
     def health_check():
