@@ -31,4 +31,4 @@ ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 
 # 启动命令
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000", "--no-access-log"]
+CMD ["python", "app/main.py"]
