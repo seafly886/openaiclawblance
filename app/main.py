@@ -19,5 +19,6 @@ if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 5000))
     
-    # 启动应用
-    app.run(debug=debug, host=host, port=port)
+    # 使用uvicorn启动应用
+    import uvicorn
+    uvicorn.run("main:app", host=host, port=port, reload=debug)
