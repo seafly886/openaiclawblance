@@ -2,7 +2,7 @@
 聊天功能路由
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from app import db
 from app.models.key import Key
 from app.models.model import Model
@@ -112,7 +112,8 @@ def chat_completions():
         
         model_name = data['model']
         messages = data['messages']
-        
+        stream = data.get('stream', False)
+
         # 检查模型是否存在
         model = Model.query.filter_by(model_name=model_name).first()
         if not model:
@@ -139,6 +140,27 @@ def chat_completions():
         frequency_penalty = data.get('frequency_penalty', 0)
         presence_penalty = data.get('presence_penalty', 0)
         
+        if stream:
+            def generate():
+                try:
+                    response = openai_service.stream_chat_completion(
+                        messages=messages,
+                        model=model_name,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        top_p=top_p,
+                        frequency_penalty=frequency_penalty,
+                        presence_penalty=presence_penalty
+                    )
+                    for chunk in response.iter_content(chunk_size=1024):
+                        yield chunk
+                except Exception as e:
+                    # 在流中返回错误信息
+                    error_message = json.dumps({'error': str(e)})
+                    yield f"data: {error_message}\n\n"
+
+            return Response(generate(), mimetype='text/event-stream')
+
         # 调用OpenAI API
         try:
             response_data = openai_service.chat_completion(

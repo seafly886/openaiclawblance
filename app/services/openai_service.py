@@ -38,7 +38,7 @@ class OpenAIService:
         }
     
     def make_request(self, method: str, endpoint: str, data: Dict[str, Any] = None,
-                    key: Optional[Key] = None) -> Dict[str, Any]:
+                        key: Optional[Key] = None, stream: bool = False) -> Dict[str, Any]:
         """
         发送请求到OpenAI API
         """
@@ -50,12 +50,15 @@ class OpenAIService:
                 if method.upper() == 'GET':
                     response = requests.get(url, headers=headers, timeout=self.timeout)
                 elif method.upper() == 'POST':
-                    response = requests.post(url, headers=headers, json=data, timeout=self.timeout)
+                    response = requests.post(url, headers=headers, json=data, timeout=self.timeout, stream=stream)
                 else:
                     raise ValueError(f"不支持的HTTP方法: {method}")
                 
                 # 检查响应状态
                 if response.status_code == 200:
+                    if stream:
+                        return response
+                    
                     result = response.json()
                     # 添加使用的Key信息到结果中
                     if key:
@@ -146,6 +149,32 @@ class OpenAIService:
             return response
         except Exception as e:
             raise Exception(f"聊天请求失败: {str(e)}")
+
+    def stream_chat_completion(self, messages: List[Dict[str, str]], model: str,
+                               **kwargs) -> Dict[str, Any]:
+        """
+        流式聊天完成
+        """
+        try:
+            # 使用轮询算法选择Key
+            key = key_rotation.get_key_by_strategy('round_robin')
+            if not key:
+                raise Exception('没有可用的API Key')
+
+            # 构建请求数据
+            data = {
+                'model': model,
+                'messages': messages,
+                'stream': True
+            }
+            data.update(kwargs)
+
+            # 发送请求
+            response = self.make_request('POST', 'chat/completions', data=data, key=key, stream=True)
+
+            return response
+        except Exception as e:
+            raise Exception(f"流式聊天请求失败: {str(e)}")
     
     def completion(self, prompt: str, model: str, temperature: float = 0.7,
                   max_tokens: int = 1000, **kwargs) -> Dict[str, Any]:
