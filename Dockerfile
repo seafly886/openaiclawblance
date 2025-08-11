@@ -38,4 +38,4 @@ ENV FLASK_ENV=production
 ENV DATABASE_URL=sqlite:////data/app.db
 
 # 启动命令
-CMD ["python", "-u", "app/main.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app.main:app"]
