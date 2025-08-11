@@ -2,6 +2,7 @@
 聊天功能路由
 """
 
+import logging
 from flask import Blueprint, request, jsonify, Response
 from app import db
 from app.models.key import Key
@@ -99,9 +100,12 @@ def chat_completions():
     OpenAI兼容的聊天完成接口
     """
     try:
+        logging.info("Received request for /v1/chat/completions")
         data = request.get_json()
+        logging.info(f"Request data: {data}")
         
         if not data or 'messages' not in data or 'model' not in data:
+            logging.warning("Missing required parameters: messages or model")
             return jsonify({
                 'error': {
                     'message': 'Missing required parameters: messages or model',
@@ -117,6 +121,7 @@ def chat_completions():
         # 检查模型是否存在
         model = Model.query.filter_by(model_name=model_name).first()
         if not model:
+            logging.warning(f"Model not found: {model_name}")
             return jsonify({
                 'error': {
                     'message': f'Model {model_name} not found',
@@ -141,6 +146,7 @@ def chat_completions():
         presence_penalty = data.get('presence_penalty', 0)
         
         if stream:
+            logging.info("Streaming response requested")
             def generate():
                 is_empty = True
                 try:
@@ -156,13 +162,16 @@ def chat_completions():
                     for chunk in response.iter_content(chunk_size=1024):
                         if chunk:
                             is_empty = False
+                            logging.info(f"Streaming chunk: {chunk}")
                             yield chunk
                 except Exception as e:
+                    logging.error(f"Error during streaming: {e}")
                     # 在流中返回错误信息
                     error_message = json.dumps({'error': str(e)})
                     yield f"data: {error_message}\n\n"
                 
                 if is_empty:
+                    logging.warning("Empty completion in streaming response")
                     # 如果没有收到任何数据，则返回一个错误
                     error_message = json.dumps({'error': 'Empty completion in streaming response'})
                     yield f"data: {error_message}\n\n"
@@ -171,6 +180,7 @@ def chat_completions():
 
         # 调用OpenAI API
         try:
+            logging.info("Calling OpenAI API for chat completion")
             response_data = openai_service.chat_completion(
                 messages=messages,
                 model=model_name,
@@ -180,6 +190,7 @@ def chat_completions():
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty
             )
+            logging.info(f"OpenAI API response: {response_data}")
             
             # 从OpenAI API响应中获取使用的Key信息
             key_info = response_data.get('_key_info')
@@ -193,6 +204,7 @@ def chat_completions():
                     tokens_used=response_data.get('usage', {}).get('total_tokens', 0)
                 )
         except Exception as api_error:
+            logging.error(f"Error calling OpenAI API: {api_error}")
             # 如果API调用失败，仍然记录聊天历史
             chat_record.update_response(
                 response=json.dumps({'error': str(api_error)}),
@@ -202,8 +214,13 @@ def chat_completions():
             # 重新抛出异常
             raise api_error
         
+        # 移除自定义的 _key_info 字段
+        if '_key_info' in response_data:
+            del response_data['_key_info']
+            
         return jsonify(response_data)
     except Exception as e:
+        logging.error(f"Error in chat_completions: {e}")
         return jsonify({
             'error': {
                 'message': str(e),

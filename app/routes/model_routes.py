@@ -2,6 +2,8 @@
 模型管理路由
 """
 
+import logging
+import time
 from flask import Blueprint, request, jsonify
 from app.services.model_service import ModelService
 
@@ -15,25 +17,41 @@ def get_models():
     获取所有模型列表
     """
     try:
+        logging.info("Received request for /v1/models")
         # 获取查询参数
         refresh = request.args.get('refresh', 'false').lower() == 'true'
         
         if refresh:
+            logging.info("Refreshing models from OpenAI API")
             # 从OpenAI API刷新模型列表
             try:
                 models = ModelService.refresh_models()
+                logging.info("Successfully refreshed models")
             except Exception as e:
+                logging.error(f"Failed to refresh models: {e}")
                 # 如果刷新失败，使用数据库中的模型列表
                 models = ModelService.get_all_models()
         else:
+            logging.info("Fetching models from database")
             # 使用数据库中的模型列表
             models = ModelService.get_all_models()
         
-        return jsonify({
-            'success': True,
-            'data': [model.to_dict() for model in models]
-        })
+        response_data = {
+            "object": "list",
+            "data": [
+                {
+                    "id": model.model_name,
+                    "object": "model",
+                    "created": int(time.time()),
+                    "owned_by": "openai"
+                }
+                for model in models
+            ]
+        }
+        logging.info(f"Returning {len(response_data['data'])} models")
+        return jsonify(response_data)
     except Exception as e:
+        logging.error(f"Error getting models: {e}")
         return jsonify({
             'success': False,
             'message': f'获取模型列表失败: {str(e)}'

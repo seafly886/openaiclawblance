@@ -3,6 +3,7 @@ Flask应用初始化
 """
 
 import os
+import logging
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -19,7 +20,11 @@ def create_app():
     创建Flask应用实例
     """
     app = Flask(__name__, static_folder='static', static_url_path='')
-    
+
+    # 配置日志
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+
     # 配置应用
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////data/app.db')
