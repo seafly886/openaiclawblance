@@ -6,16 +6,12 @@ OpenAI代理服务启动文件
 import os
 from dotenv import load_dotenv
 from app import create_app
-from a2wsgi import ASGIMiddleware
 
 # 加载环境变量
 load_dotenv()
 
 # 创建Flask应用
-flask_app = create_app()
-
-# 使用a2wsgi将Flask应用转换为ASGI应用
-app = ASGIMiddleware(flask_app)
+app = create_app()
 
 if __name__ == '__main__':
     # 获取配置
@@ -23,6 +19,5 @@ if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 5000))
     
-    # 使用uvicorn启动应用
-    import uvicorn
-    uvicorn.run("app.main:app", host=host, port=port, reload=debug)
+    # 使用Flask自带的服务器启动应用
+    app.run(host=host, port=port, debug=debug)

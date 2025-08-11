@@ -38,4 +38,4 @@ ENV FLASK_ENV=production
 ENV DATABASE_URL=sqlite:////data/app.db
 
 # 启动命令
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["python", "-u", "app/main.py"]
