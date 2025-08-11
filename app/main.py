@@ -59,23 +59,21 @@ class WSGI2ASGI:
             environ[key] = value.decode()
         
         # 收集响应
-        response_started = False
+        response_status = ""
         response_headers = []
-        response_body = []
         
-        def start_response(status, response_headers, exc_info=None):
-            nonlocal response_started
-            response_started = True
-            return lambda chunk: None
+        def start_response(status, headers, exc_info=None):
+            nonlocal response_status, response_headers
+            response_status = status
+            response_headers = headers
         
         # 调用WSGI应用
         result = self.wsgi_app(environ, start_response)
         
         # 发送响应头
-        if response_started:
-            status_code = int(start_response.__closure__[0].cell_contents.split()[1])
-            headers = [(name.encode(), value.encode()) for name, value in response_headers]
-            await send({"type": "http.response.start", "status": status_code, "headers": headers})
+        status_code = int(response_status.split()[0])
+        headers = [(name.encode(), value.encode()) for name, value in response_headers]
+        await send({"type": "http.response.start", "status": status_code, "headers": headers})
         
         # 发送响应体
         for chunk in result:

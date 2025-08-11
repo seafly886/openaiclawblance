@@ -65,18 +65,93 @@ python run.py
 
 ## Docker部署
 
-### 使用Docker Compose（推荐）
+### 准备工作
 
-1. 确保已安装Docker和Docker Compose
-2. 在项目根目录下运行：
+在部署之前，建议创建一个 `.env` 文件来管理环境变量。在项目根目录下创建一个名为 `.env` 的文件，并添加以下内容：
 
-```bash
-docker-compose up -d
+```env
+FLASK_ENV=production
+SECRET_KEY=your-super-secret-key
+# 可选：如果你使用自定义的OpenAI API地址，请取消注释下一行
+# OPENAI_API_BASE_URL=https://your-custom-openai-api-url/v1
 ```
 
-3. 访问 http://localhost:5000
+**重要提示**：请将 `your-super-secret-key` 替换为一个强随机字符串。
 
-详细部署说明请参考 [docker-deployment.md](docker-deployment.md)。
+### 方法一：使用Docker Compose（推荐）
+
+这是最简单、最推荐的部署方法。
+
+1.  **确保已安装Docker和Docker Compose。**
+
+2.  **启动服务：**
+
+    在项目根目录下，运行以下命令以在后台启动服务：
+
+    ```bash
+    docker-compose up -d
+    ```
+
+3.  **访问应用：**
+
+    打开浏览器并访问 `http://localhost:5000`。
+
+4.  **查看日志：**
+
+    如果你需要查看应用的日志，可以运行：
+
+    ```bash
+    docker-compose logs -f
+    ```
+
+5.  **停止服务：**
+
+    要停止服务，请运行：
+
+    ```bash
+    docker-compose down
+    ```
+
+### 方法二：仅使用Docker
+
+如果你不想使用Docker Compose，也可以直接使用Docker来构建和运行容器。
+
+1.  **构建Docker镜像：**
+
+    在项目根目录下，运行以下命令来构建镜像：
+
+    ```bash
+    docker build -t openai-proxy .
+    ```
+
+2.  **运行Docker容器：**
+
+    运行以下命令来启动容器：
+
+    ```bash
+    docker run -d -p 5000:5000 \
+      --name openai-proxy-container \
+      -v $(pwd)/data:/data \
+      --env-file .env \
+      openai-proxy
+    ```
+
+    **参数说明：**
+    *   `-d`：在后台运行容器。
+    *   `-p 5000:5000`：将主机的5000端口映射到容器的5000端口。
+    *   `--name openai-proxy-container`：为容器指定一个名称。
+    *   `-v $(pwd)/data:/data`：将主机当前目录下的 `data` 目录挂载到容器的 `/data` 目录，用于数据持久化。
+    *   `--env-file .env`：从 `.env` 文件加载环境变量。
+
+3.  **访问应用：**
+
+    打开浏览器并访问 `http://localhost:5000`。
+
+### 数据持久化
+
+本项目使用SQLite数据库，数据存储在 `/data/app.db` 文件中。为了防止在容器重启或删除后数据丢失，我们强烈建议你使用数据卷进行持久化。
+
+`docker-compose.yml` 文件和上面的 `docker run` 命令都已经配置了数据卷，将主机上的 `./data` 目录映射到容器内的 `/data` 目录。请确保不要删除主机上的 `data` 目录。
 
 ## 配置
 
