@@ -19,7 +19,7 @@ class KeyService:
         验证Key格式
         """
         # OpenAI API Key格式验证
-        pattern = r'^sk-[a-zA-Z0-9]{48}$'
+        pattern = r'^sk-[a-zA-Z0-9-_.]{40,}$'
         return re.match(pattern, key_value) is not None
     
     @staticmethod
