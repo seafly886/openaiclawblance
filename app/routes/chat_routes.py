@@ -93,6 +93,7 @@ def chat():
         }), 500
 
 @bp.route('/api/chat/completions', methods=['POST'])
+@bp.route('/v1/chat/completions', methods=['POST'])
 def chat_completions():
     """
     OpenAI兼容的聊天完成接口

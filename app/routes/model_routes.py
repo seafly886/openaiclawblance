@@ -9,6 +9,7 @@ from app.services.model_service import ModelService
 bp = Blueprint('model_routes', __name__)
 
 @bp.route('/api/models', methods=['GET'])
+@bp.route('/v1/models', methods=['GET'])
 def get_models():
     """
     获取所有模型列表

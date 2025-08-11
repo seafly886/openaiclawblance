@@ -186,6 +186,23 @@ class Config:
     DEBUG = False
 ```
 
+## API用法
+
+您可以使用`curl`与代理服务进行交互。该服务将根据您在`app/config.py`中设置的`KEY_ROTATION_STRATEGY`自动从密钥池中选择一个API密钥。
+
+下面是一个使用`curl`调用聊天API的示例：
+
+```bash
+curl -X POST http://localhost:5000/api/chat \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "gpt-3.5-turbo",
+    "messages": [
+        {"role": "user", "content": "你好，世界！"}
+    ]
+}'
+```
+
 ## API文档
 
 ### Key管理
@@ -240,6 +257,7 @@ POST /api/keys/{key_id}/test
 
 ```
 GET /api/models
+GET /v1/models
 ```
 
 #### 刷新模型列表
@@ -285,6 +303,7 @@ DELETE /api/models/{model_name}
 
 ```
 POST /api/chat
+POST /v1/chat/completions
 Content-Type: application/json
 
 {
