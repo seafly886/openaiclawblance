@@ -142,6 +142,7 @@ def chat_completions():
         
         if stream:
             def generate():
+                is_empty = True
                 try:
                     response = openai_service.stream_chat_completion(
                         messages=messages,
@@ -153,10 +154,17 @@ def chat_completions():
                         presence_penalty=presence_penalty
                     )
                     for chunk in response.iter_content(chunk_size=1024):
-                        yield chunk
+                        if chunk:
+                            is_empty = False
+                            yield chunk
                 except Exception as e:
                     # 在流中返回错误信息
                     error_message = json.dumps({'error': str(e)})
+                    yield f"data: {error_message}\n\n"
+                
+                if is_empty:
+                    # 如果没有收到任何数据，则返回一个错误
+                    error_message = json.dumps({'error': 'Empty completion in streaming response'})
                     yield f"data: {error_message}\n\n"
 
             return Response(generate(), mimetype='text/event-stream')
