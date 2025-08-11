@@ -3,7 +3,7 @@
 """
 
 import logging
-from flask import Blueprint, request, jsonify, Response, current_app
+from flask import Blueprint, request, jsonify, Response, current_app, g
 from app import db
 from app.models.key import Key
 from app.models.model import Model
@@ -147,8 +147,9 @@ def chat_completions():
         
         if stream:
             logging.info("Streaming response requested")
+            g.app = current_app._get_current_object()
             def generate():
-                with current_app.app_context():
+                with g.app.app_context():
                     is_empty = True
                     try:
                         for chunk in openai_service.stream_chat_completion(
