@@ -151,7 +151,7 @@ class OpenAIService:
             raise Exception(f"聊天请求失败: {str(e)}")
 
     def stream_chat_completion(self, messages: List[Dict[str, str]], model: str,
-                               **kwargs) -> Dict[str, Any]:
+                               **kwargs):
         """
         流式聊天完成
         """
@@ -172,7 +172,8 @@ class OpenAIService:
             # 发送请求
             response = self.make_request('POST', 'chat/completions', data=data, key=key, stream=True)
 
-            return response
+            for chunk in response.iter_content(chunk_size=1024):
+                yield chunk
         except Exception as e:
             raise Exception(f"流式聊天请求失败: {str(e)}")
     
