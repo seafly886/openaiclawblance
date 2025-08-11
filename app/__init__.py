@@ -18,7 +18,7 @@ def create_app():
     """
     创建Flask应用实例
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static', static_url_path='')
     
     # 配置应用
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
@@ -49,9 +49,6 @@ def create_app():
     @app.route('/')
     def index():
         return app.send_static_file('index.html')
-    
-    # 设置静态文件目录
-    app.static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     
     # 健康检查接口
     @app.route('/health')
