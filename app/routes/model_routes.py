@@ -10,11 +10,10 @@ from app.services.model_service import ModelService
 # 创建蓝图
 bp = Blueprint('model_routes', __name__)
 
-@bp.route('/api/models', methods=['GET'])
 @bp.route('/v1/models', methods=['GET'])
-def get_models():
+def get_v1_models():
     """
-    获取所有模型列表
+    获取所有模型列表 (OpenAI API格式)
     """
     try:
         logging.info("Received request for /v1/models")
@@ -44,6 +43,53 @@ def get_models():
                     "object": "model",
                     "created": int(time.time()),
                     "owned_by": "openai"
+                }
+                for model in models
+            ]
+        }
+        logging.info(f"Returning {len(response_data['data'])} models")
+        return jsonify(response_data)
+    except Exception as e:
+        logging.error(f"Error getting models: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'获取模型列表失败: {str(e)}'
+        }), 500
+
+@bp.route('/api/models', methods=['GET'])
+def get_api_models():
+    """
+    获取所有模型列表 (前端适配格式)
+    """
+    try:
+        logging.info("Received request for /api/models")
+        # 获取查询参数
+        refresh = request.args.get('refresh', 'false').lower() == 'true'
+        
+        if refresh:
+            logging.info("Refreshing models from OpenAI API")
+            # 从OpenAI API刷新模型列表
+            try:
+                models = ModelService.refresh_models()
+                logging.info("Successfully refreshed models")
+            except Exception as e:
+                logging.error(f"Failed to refresh models: {e}")
+                # 如果刷新失败，使用数据库中的模型列表
+                models = ModelService.get_all_models()
+        else:
+            logging.info("Fetching models from database")
+            # 使用数据库中的模型列表
+            models = ModelService.get_all_models()
+        
+        response_data = {
+            "success": True,
+            "data": [
+                {
+                    "id": model.model_name,
+                    "model_name": model.model_name,
+                    "description": model.description or "",
+                    "created_at": model.created_at,
+                    "updated_at": model.updated_at
                 }
                 for model in models
             ]
