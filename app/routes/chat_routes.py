@@ -11,12 +11,14 @@ from app.models.usage_stats import UsageStat
 from app.models.chat_history import ChatHistory
 from app.services.openai_service import openai_service
 from app.services.key_service import KeyService
+from app.utils.auth import login_required
 import json
 
 # 创建蓝图
 bp = Blueprint('chat_routes', __name__)
 
 @bp.route('/api/chat', methods=['POST'])
+@login_required
 def chat():
     """
     聊天接口
@@ -229,6 +231,7 @@ def chat_completions():
         }), 500
 
 @bp.route('/api/chat/history', methods=['GET'])
+@login_required
 def get_chat_history():
     """
     获取聊天历史记录
@@ -260,6 +263,7 @@ def get_chat_history():
         }), 500
 
 @bp.route('/api/chat/history/<int:history_id>', methods=['GET'])
+@login_required
 def get_chat_history_detail(history_id):
     """
     获取聊天历史详情
@@ -278,6 +282,7 @@ def get_chat_history_detail(history_id):
         }), 500
 
 @bp.route('/api/chat/history/<int:history_id>', methods=['DELETE'])
+@login_required
 def delete_chat_history(history_id):
     """
     删除聊天历史记录

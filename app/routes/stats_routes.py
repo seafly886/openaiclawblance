@@ -4,11 +4,13 @@
 
 from flask import Blueprint, request, jsonify
 from app.services.stats_service import StatsService
+from app.utils.auth import login_required
 
 # 创建蓝图
 bp = Blueprint('stats_routes', __name__)
 
 @bp.route('/api/stats/overview', methods=['GET'])
+@login_required
 def get_overview_stats():
     """
     获取系统概览统计
@@ -26,6 +28,7 @@ def get_overview_stats():
         }), 500
 
 @bp.route('/api/stats/usage', methods=['GET'])
+@login_required
 def get_usage_stats():
     """
     获取使用统计
@@ -46,6 +49,7 @@ def get_usage_stats():
         }), 500
 
 @bp.route('/api/stats/keys', methods=['GET'])
+@login_required
 def get_key_stats():
     """
     获取Key统计
@@ -83,6 +87,7 @@ def get_key_stats():
         }), 500
 
 @bp.route('/api/stats/models', methods=['GET'])
+@login_required
 def get_model_stats():
     """
     获取模型统计
@@ -120,6 +125,7 @@ def get_model_stats():
         }), 500
 
 @bp.route('/api/stats/hourly', methods=['GET'])
+@login_required
 def get_hourly_stats():
     """
     获取每小时使用统计

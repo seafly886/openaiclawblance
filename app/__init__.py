@@ -30,6 +30,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:////data/app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['OPENAI_API_BASE_URL'] = os.getenv('OPENAI_API_BASE_URL', 'https://api.openai.com/v1')
+    app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 会话有效期1小时
     
     # 初始化数据库
     db.init_app(app)
@@ -44,7 +45,8 @@ def create_app():
         seed_database()
     
     # 注册蓝图
-    from app.routes import key_routes, model_routes, chat_routes, stats_routes
+    from app.routes import key_routes, model_routes, chat_routes, stats_routes, auth_routes
+    app.register_blueprint(auth_routes.bp)
     app.register_blueprint(key_routes.bp)
     app.register_blueprint(model_routes.bp)
     app.register_blueprint(chat_routes.bp)
@@ -53,7 +55,8 @@ def create_app():
     # 注册静态文件路由
     @app.route('/')
     def index():
-        return app.send_static_file('index.html')
+        from app.utils.auth import login_required
+        return login_required(lambda: app.send_static_file('index.html'))()
     
     # 健康检查接口
     @app.route('/health')

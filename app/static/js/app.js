@@ -9,6 +9,9 @@ let chatHistory = [];
 
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
+    // 检查是否已登录
+    checkLoginStatus();
+    
     // 初始化导航
     initNavigation();
     
@@ -21,6 +24,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // 检查服务状态
     checkServiceStatus();
 });
+
+/**
+ * 检查登录状态
+ */
+function checkLoginStatus() {
+    // 尝试加载仪表盘数据来检查登录状态
+    fetch('/api/stats/overview')
+        .then(response => {
+            if (response.status === 401) {
+                // 未登录，重定向到登录页面
+                window.location.href = '/login';
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('检查登录状态失败:', error);
+        });
+}
+
+/**
+ * 通用 fetch 请求包装器，处理 401 错误
+ */
+function authenticatedFetch(url, options = {}) {
+    return fetch(url, options)
+        .then(response => {
+            if (response.status === 401) {
+                // 未登录，重定向到登录页面
+                window.location.href = '/login';
+                return Promise.reject('未授权访问');
+            }
+            return response;
+        });
+}
 
 /**
  * 初始化导航
@@ -144,7 +180,7 @@ function loadPageData(page) {
  */
 function loadDashboard() {
     // 加载概览数据
-    fetch('/api/stats/overview')
+    authenticatedFetch('/api/stats/overview')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -178,7 +214,7 @@ function loadKeys() {
     const tableBody = document.getElementById('keys-table');
     tableBody.innerHTML = '<tr><td colspan="7" class="text-center"><div class="loading"></div> 加载中...</td></tr>';
     
-    fetch('/api/keys')
+    authenticatedFetch('/api/keys')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -228,7 +264,7 @@ function loadModels() {
     const tableBody = document.getElementById('models-table');
     tableBody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="loading"></div> 加载中...</td></tr>';
     
-    fetch('/api/models')
+    authenticatedFetch('/api/models')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -272,7 +308,7 @@ function loadModels() {
  */
 function loadStatsData(period = 'all') {
     // 加载使用统计
-    fetch(`/api/stats/usage?period=${period}`)
+    authenticatedFetch(`/api/stats/usage?period=${period}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -295,7 +331,7 @@ function loadStatsData(period = 'all') {
         });
     
     // 加载每小时使用趋势
-    fetch('/api/stats/hourly')
+    authenticatedFetch('/api/stats/hourly')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -317,7 +353,7 @@ function loadChat() {
     const modelSelect = document.getElementById('model-select');
     modelSelect.innerHTML = '<option value="">加载中...</option>';
     
-    fetch('/api/models/chat')
+    authenticatedFetch('/api/models/chat')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -360,7 +396,7 @@ function loadChatHistory() {
     const historyContainer = document.getElementById('chat-history');
     historyContainer.innerHTML = '<div class="text-center text-muted"><div class="loading"></div> 加载中...</div>';
     
-    fetch('/api/chat/history?limit=10')
+    authenticatedFetch('/api/chat/history?limit=10')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -488,7 +524,7 @@ function sendMessage() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
     
     // 发送请求
-    fetch('/api/chat', {
+    authenticatedFetch('/api/chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -563,7 +599,7 @@ function saveKey() {
         return;
     }
     
-    fetch('/api/keys', {
+    authenticatedFetch('/api/keys', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -606,7 +642,7 @@ function saveModel() {
         return;
     }
     
-    fetch('/api/models', {
+    authenticatedFetch('/api/models', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -642,7 +678,7 @@ function saveModel() {
 function refreshModels() {
     showToast('正在刷新模型列表...', 'info');
     
-    fetch('/api/models?refresh=true')
+    authenticatedFetch('/api/models?refresh=true')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -661,7 +697,7 @@ function refreshModels() {
  * 检查服务状态
  */
 function checkServiceStatus() {
-    fetch('/health')
+    authenticatedFetch('/health')
         .then(response => response.json())
         .then(data => {
             const indicator = document.getElementById('status-indicator');
@@ -932,7 +968,7 @@ function loadHourlyUsageChart(hourlyData) {
  */
 function editKey(keyId) {
     // 获取Key信息
-    fetch(`/api/keys/${keyId}`)
+    authenticatedFetch(`/api/keys/${keyId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -978,7 +1014,7 @@ function updateKey(keyId) {
         return;
     }
     
-    fetch(`/api/keys/${keyId}`, {
+    authenticatedFetch(`/api/keys/${keyId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -1027,7 +1063,7 @@ function resetKeyModal() {
  */
 function deleteKey(keyId) {
     if (confirm('确定要删除这个Key吗？')) {
-        fetch(`/api/keys/${keyId}`, {
+        authenticatedFetch(`/api/keys/${keyId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
@@ -1051,7 +1087,7 @@ function deleteKey(keyId) {
 function testKey(keyId) {
     showToast('正在测试Key...', 'info');
     
-    fetch(`/api/keys/${keyId}/test`, {
+    authenticatedFetch(`/api/keys/${keyId}/test`, {
         method: 'POST'
     })
     .then(response => response.json())
@@ -1077,7 +1113,7 @@ function testKey(keyId) {
  */
 function editModel(modelName) {
     // 获取模型信息
-    fetch(`/api/models/${modelName}`)
+    authenticatedFetch(`/api/models/${modelName}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -1123,7 +1159,7 @@ function updateModel(modelName) {
         return;
     }
     
-    fetch(`/api/models/${name}`, {
+    authenticatedFetch(`/api/models/${name}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -1171,7 +1207,7 @@ function resetModelModal() {
  */
 function deleteModel(modelName) {
     if (confirm('确定要删除这个模型吗？')) {
-        fetch(`/api/models/${modelName}`, {
+        authenticatedFetch(`/api/models/${modelName}`, {
             method: 'DELETE'
         })
         .then(response => response.json())

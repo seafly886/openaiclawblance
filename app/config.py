@@ -33,6 +33,9 @@ class Config:
     # 聊天配置
     CHAT_MAX_HISTORY = 100  # 最大聊天历史记录数
     CHAT_TIMEOUT = 30  # 聊天请求超时时间（秒）
+    
+    # 登录验证配置
+    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWD', 'ts-123456')  # 管理员密码，默认为 ts-123456
 
 class DevelopmentConfig(Config):
     """

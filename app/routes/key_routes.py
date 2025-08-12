@@ -4,11 +4,13 @@ Key管理路由
 
 from flask import Blueprint, request, jsonify
 from app.services.key_service import KeyService
+from app.utils.auth import login_required
 
 # 创建蓝图
 bp = Blueprint('key_routes', __name__)
 
 @bp.route('/api/keys', methods=['GET'])
+@login_required
 def get_keys():
     """
     获取所有Key列表
@@ -26,6 +28,7 @@ def get_keys():
         }), 500
 
 @bp.route('/api/keys/<int:key_id>', methods=['GET'])
+@login_required
 def get_key(key_id):
     """
     获取特定Key信息
@@ -49,6 +52,7 @@ def get_key(key_id):
         }), 500
 
 @bp.route('/api/keys', methods=['POST'])
+@login_required
 def create_key():
     """
     创建新Key
@@ -86,6 +90,7 @@ def create_key():
         }), 500
 
 @bp.route('/api/keys/<int:key_id>', methods=['PUT'])
+@login_required
 def update_key(key_id):
     """
     更新Key信息
@@ -118,6 +123,7 @@ def update_key(key_id):
         }), 500
 
 @bp.route('/api/keys/<int:key_id>', methods=['DELETE'])
+@login_required
 def delete_key(key_id):
     """
     删除Key
@@ -141,6 +147,7 @@ def delete_key(key_id):
         }), 500
 
 @bp.route('/api/keys/<int:key_id>/stats', methods=['GET'])
+@login_required
 def get_key_stats(key_id):
     """
     获取Key使用统计
@@ -164,6 +171,7 @@ def get_key_stats(key_id):
         }), 500
 
 @bp.route('/api/keys/<int:key_id>/test', methods=['POST'])
+@login_required
 def test_key(key_id):
     """
     测试Key是否有效
@@ -181,6 +189,7 @@ def test_key(key_id):
         }), 500
 
 @bp.route('/api/keys/summary', methods=['GET'])
+@login_required
 def get_keys_summary():
     """
     获取Keys摘要信息

@@ -6,6 +6,7 @@ import logging
 import time
 from flask import Blueprint, request, jsonify
 from app.services.model_service import ModelService
+from app.utils.auth import login_required
 
 # 创建蓝图
 bp = Blueprint('model_routes', __name__)
@@ -57,6 +58,7 @@ def get_v1_models():
         }), 500
 
 @bp.route('/api/models', methods=['GET'])
+@login_required
 def get_api_models():
     """
     获取所有模型列表 (前端适配格式)
@@ -104,6 +106,7 @@ def get_api_models():
         }), 500
 
 @bp.route('/api/models/<string:model_name>', methods=['GET'])
+@login_required
 def get_model(model_name):
     """
     获取特定模型信息
@@ -127,6 +130,7 @@ def get_model(model_name):
         }), 500
 
 @bp.route('/api/models/<string:model_name>/stats', methods=['GET'])
+@login_required
 def get_model_stats(model_name):
     """
     获取模型使用统计
@@ -150,6 +154,7 @@ def get_model_stats(model_name):
         }), 500
 
 @bp.route('/api/models', methods=['POST'])
+@login_required
 def create_model():
     """
     创建新模型
@@ -187,6 +192,7 @@ def create_model():
         }), 500
 
 @bp.route('/api/models/<string:model_name>', methods=['PUT'])
+@login_required
 def update_model(model_name):
     """
     更新模型信息
@@ -223,6 +229,7 @@ def update_model(model_name):
         }), 500
 
 @bp.route('/api/models/<string:model_name>', methods=['DELETE'])
+@login_required
 def delete_model(model_name):
     """
     删除模型
@@ -246,6 +253,7 @@ def delete_model(model_name):
         }), 500
 
 @bp.route('/api/models/summary', methods=['GET'])
+@login_required
 def get_models_summary():
     """
     获取模型摘要信息
@@ -263,6 +271,7 @@ def get_models_summary():
         }), 500
 
 @bp.route('/api/models/chat', methods=['GET'])
+@login_required
 def get_chat_models():
     """
     获取支持聊天的模型列表
@@ -280,6 +289,7 @@ def get_chat_models():
         }), 500
 
 @bp.route('/api/models/completion', methods=['GET'])
+@login_required
 def get_completion_models():
     """
     获取支持文本完成的模型列表
