@@ -21,7 +21,7 @@ def login_required(f):
                     'message': '需要登录才能访问此接口'
                 }), 401
             # 否则重定向到登录页面
-            return redirect(url_for('login'))
+            return redirect(url_for('auth_routes.login'))
         return f(*args, **kwargs)
     return decorated_function
 
