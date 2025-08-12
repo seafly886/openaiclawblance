@@ -25,6 +25,29 @@ def get_keys():
             'message': f'获取Key列表失败: {str(e)}'
         }), 500
 
+@bp.route('/api/keys/<int:key_id>', methods=['GET'])
+def get_key(key_id):
+    """
+    获取特定Key信息
+    """
+    try:
+        key = KeyService.get_key_by_id(key_id)
+        if not key:
+            return jsonify({
+                'success': False,
+                'message': 'Key不存在'
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'data': key.to_dict()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'获取Key信息失败: {str(e)}'
+        }), 500
+
 @bp.route('/api/keys', methods=['POST'])
 def create_key():
     """
