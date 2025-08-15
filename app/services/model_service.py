@@ -121,23 +121,63 @@ class ModelService:
             for model_data in openai_models.get('data', []):
                 model_name = model_data.get('id')
                 if model_name:
-                    # 获取或创建模型记录
-                    model = Model.get_or_create(
-                        model_name=model_name,
-                        description=f"OpenAI {model_name} 模型",
-                        capabilities=json.dumps({
-                            'owned_by': model_data.get('owned_by'),
-                            'created': model_data.get('created'),
-                            'permission': model_data.get('permission', []),
-                            'supports_chat': True,  # 默认支持聊天
-                            'supports_completion': True  # 默认支持文本完成
-                        })
-                    )
-                    updated_models.append(model)
+                    # 获取现有模型
+                    existing_model = ModelService.get_model_by_name(model_name)
+                    
+                    # 判断模型是否支持聊天和文本完成
+                    # 根据模型名称判断其能力
+                    supports_chat = ModelService._supports_chat_capability(model_name)
+                    supports_completion = ModelService._supports_completion_capability(model_name)
+                    
+                    # 构建能力信息
+                    capabilities = {
+                        'owned_by': model_data.get('owned_by'),
+                        'created': model_data.get('created'),
+                        'permission': model_data.get('permission', []),
+                        'supports_chat': supports_chat,
+                        'supports_completion': supports_completion
+                    }
+                    
+                    if existing_model:
+                        # 更新现有模型
+                        existing_model.description = f"OpenAI {model_name} 模型"
+                        existing_model.capabilities = json.dumps(capabilities)
+                        updated_models.append(existing_model)
+                    else:
+                        # 创建新模型
+                        model = Model(
+                            model_name=model_name,
+                            description=f"OpenAI {model_name} 模型",
+                            capabilities=json.dumps(capabilities)
+                        )
+                        db.session.add(model)
+                        updated_models.append(model)
+            
+            # 提交所有更改
+            db.session.commit()
             
             return updated_models
         except Exception as e:
+            db.session.rollback()
             raise Exception(f"刷新模型列表失败: {str(e)}")
+    
+    @staticmethod
+    def _supports_chat_capability(model_name: str) -> bool:
+        """
+        根据模型名称判断是否支持聊天功能
+        """
+        # GPT-4, GPT-3.5 系列模型都支持聊天
+        chat_patterns = ['gpt-4', 'gpt-3.5', 'chat']
+        return any(pattern in model_name.lower() for pattern in chat_patterns)
+    
+    @staticmethod
+    def _supports_completion_capability(model_name: str) -> bool:
+        """
+        根据模型名称判断是否支持文本完成功能
+        """
+        # 大部分模型都支持文本完成
+        completion_patterns = ['gpt-3', 'gpt-4', 'text-davinci', 'text-curie', 'text-babbage', 'text-ada']
+        return any(pattern in model_name.lower() for pattern in completion_patterns)
     
     @staticmethod
     def get_models_summary() -> Dict[str, Any]:
