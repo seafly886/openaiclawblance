@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 openai==0.28.1
 SQLAlchemy==2.0.21
 gunicorn
+psutil==5.9.5

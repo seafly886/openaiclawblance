@@ -45,12 +45,13 @@ def create_app():
         seed_database()
     
     # 注册蓝图
-    from app.routes import key_routes, model_routes, chat_routes, stats_routes, auth_routes
+    from app.routes import key_routes, model_routes, chat_routes, stats_routes, auth_routes, health_routes
     app.register_blueprint(auth_routes.bp)
     app.register_blueprint(key_routes.bp)
     app.register_blueprint(model_routes.bp)
     app.register_blueprint(chat_routes.bp)
     app.register_blueprint(stats_routes.bp)
+    app.register_blueprint(health_routes.bp)
     
     # 注册静态文件路由
     @app.route('/')
@@ -58,10 +59,23 @@ def create_app():
         from app.utils.auth import login_required
         return login_required(lambda: app.send_static_file('index.html'))()
     
-    # 健康检查接口
-    @app.route('/health')
-    def health_check():
-        return jsonify({'status': 'healthy', 'message': 'OpenAI代理服务运行正常'})
+    # 初始化心跳检测服务
+    from app.services.heartbeat_service import heartbeat_service
+    heartbeat_service.init_app(app)
+    
+    # 在应用上下文中启用心跳检测服务（如果配置为自动启动）
+    @app.before_first_request
+    def start_heartbeat_if_needed():
+        if (app.config.get('HEARTBEAT_ENABLED', True) and
+            app.config.get('HEARTBEAT_AUTO_START', True) and
+            not heartbeat_service.is_running):
+            logger = logging.getLogger(__name__)
+            logger.info("在第一个请求前启用心跳检测服务")
+            success = heartbeat_service.start()
+            if success:
+                logger.info("心跳检测服务启动成功")
+            else:
+                logger.warning("心跳检测服务启动失败")
     
     # 错误处理
     @app.errorhandler(404)

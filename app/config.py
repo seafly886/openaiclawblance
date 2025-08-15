@@ -36,6 +36,13 @@ class Config:
     
     # 登录验证配置
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWD', 'ts-123456')  # 管理员密码，默认为 ts-123456
+    
+    # 心跳检测配置
+    HEARTBEAT_ENABLED = os.getenv('HEARTBEAT_ENABLED', 'True').lower() == 'true'  # 是否启用心跳检测
+    HEARTBEAT_CHECK_INTERVAL = int(os.getenv('HEARTBEAT_CHECK_INTERVAL', '300'))  # 心跳检测间隔（秒）
+    HEARTBEAT_MAX_RETRIES = int(os.getenv('HEARTBEAT_MAX_RETRIES', '3'))  # 最大重试次数
+    HEARTBEAT_RESTART_COOLDOWN = int(os.getenv('HEARTBEAT_RESTART_COOLDOWN', '300'))  # 重启冷却时间（秒）
+    HEARTBEAT_AUTO_START = os.getenv('HEARTBEAT_AUTO_START', 'True').lower() == 'true'  # 是否自动启动心跳检测
 
 class DevelopmentConfig(Config):
     """
