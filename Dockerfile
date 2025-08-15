@@ -8,9 +8,10 @@ WORKDIR /app
 RUN mkdir -p /data && chmod 777 /data
 
 # 安装系统依赖
-# RUN apt-get update && apt-get install -y \
-#     gcc \
-#     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # 复制requirements文件
 # 复制所需文件到容器中
