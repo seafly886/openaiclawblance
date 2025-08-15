@@ -128,7 +128,9 @@ class ModelService:
                         capabilities=json.dumps({
                             'owned_by': model_data.get('owned_by'),
                             'created': model_data.get('created'),
-                            'permission': model_data.get('permission', [])
+                            'permission': model_data.get('permission', []),
+                            'supports_chat': True,  # 默认支持聊天
+                            'supports_completion': True  # 默认支持文本完成
                         })
                     )
                     updated_models.append(model)

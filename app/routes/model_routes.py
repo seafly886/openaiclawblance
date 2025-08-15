@@ -23,18 +23,17 @@ def get_v1_models():
         
         if refresh:
             logging.info("Refreshing models from OpenAI API")
-            # 从OpenAI API刷新模型列表
+            # 从OpenAI API刷新模型列表并保存到数据库
             try:
-                models = ModelService.refresh_models()
-                logging.info("Successfully refreshed models")
+                ModelService.refresh_models()
+                logging.info("Successfully refreshed models and saved to database")
             except Exception as e:
                 logging.error(f"Failed to refresh models: {e}")
-                # 如果刷新失败，使用数据库中的模型列表
-                models = ModelService.get_all_models()
-        else:
-            logging.info("Fetching models from database")
-            # 使用数据库中的模型列表
-            models = ModelService.get_all_models()
+                # 即使刷新失败，也返回数据库中的模型列表
+        
+        logging.info("Fetching models from database")
+        # 直接从数据库获取模型列表
+        models = ModelService.get_all_models()
         
         response_data = {
             "object": "list",
@@ -70,18 +69,17 @@ def get_api_models():
         
         if refresh:
             logging.info("Refreshing models from OpenAI API")
-            # 从OpenAI API刷新模型列表
+            # 从OpenAI API刷新模型列表并保存到数据库
             try:
-                models = ModelService.refresh_models()
-                logging.info("Successfully refreshed models")
+                ModelService.refresh_models()
+                logging.info("Successfully refreshed models and saved to database")
             except Exception as e:
                 logging.error(f"Failed to refresh models: {e}")
-                # 如果刷新失败，使用数据库中的模型列表
-                models = ModelService.get_all_models()
-        else:
-            logging.info("Fetching models from database")
-            # 使用数据库中的模型列表
-            models = ModelService.get_all_models()
+                # 即使刷新失败，也返回数据库中的模型列表
+        
+        logging.info("Fetching models from database")
+        # 直接从数据库获取模型列表
+        models = ModelService.get_all_models()
         
         response_data = {
             "success": True,
@@ -277,6 +275,20 @@ def get_chat_models():
     获取支持聊天的模型列表
     """
     try:
+        # 获取查询参数
+        refresh = request.args.get('refresh', 'false').lower() == 'true'
+        
+        if refresh:
+            logging.info("Refreshing chat models from OpenAI API")
+            # 从OpenAI API刷新模型列表并保存到数据库
+            try:
+                ModelService.refresh_models()
+                logging.info("Successfully refreshed chat models and saved to database")
+            except Exception as e:
+                logging.error(f"Failed to refresh chat models: {e}")
+                # 即使刷新失败，也返回数据库中的模型列表
+        
+        # 直接从数据库获取支持聊天的模型列表
         models = ModelService.get_chat_models()
         return jsonify({
             'success': True,

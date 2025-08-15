@@ -345,9 +345,14 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="model-select" class="form-label">选择模型</label>
-                                <select class="form-select" id="model-select">
-                                    <option value="">加载中...</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="model-select">
+                                        <option value="">加载中...</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="refresh-chat-models-btn">
+                                        <i class="bi bi-arrow-clockwise"></i> 刷新
+                                    </button>
+                                </div>
                             </div>
                             
                             <div id="chat-container" class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;">

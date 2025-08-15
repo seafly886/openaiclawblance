@@ -127,6 +127,11 @@ function initEventListeners() {
         modal.show();
     });
     
+    // 聊天页面模型刷新相关事件
+    document.getElementById('refresh-chat-models-btn')?.addEventListener('click', function() {
+        refreshChatModels();
+    });
+    
     document.getElementById('save-model-btn').addEventListener('click', function() {
         saveModel();
     });
@@ -350,40 +355,7 @@ function loadStatsData(period = 'all') {
  */
 function loadChat() {
     // 加载模型列表
-    const modelSelect = document.getElementById('model-select');
-    modelSelect.innerHTML = '<option value="">加载中...</option>';
-    
-    authenticatedFetch('/api/models/chat')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                modelSelect.innerHTML = '';
-                
-                if (data.data.length === 0) {
-                    modelSelect.innerHTML = '<option value="">暂无可用模型</option>';
-                    return;
-                }
-                
-                data.data.forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model.model_name;
-                    option.textContent = model.model_name;
-                    modelSelect.appendChild(option);
-                });
-                
-                // 默认选择第一个模型
-                if (data.data.length > 0) {
-                    modelSelect.value = data.data[0].model_name;
-                }
-            } else {
-                modelSelect.innerHTML = '<option value="">加载失败</option>';
-                showToast('加载模型列表失败: ' + data.message, 'danger');
-            }
-        })
-        .catch(error => {
-            modelSelect.innerHTML = '<option value="">加载失败</option>';
-            showToast('加载模型列表失败: ' + error.message, 'danger');
-        });
+    loadChatModels();
     
     // 加载聊天历史
     loadChatHistory();
@@ -690,6 +662,78 @@ function refreshModels() {
         })
         .catch(error => {
             showToast('模型列表刷新失败: ' + error.message, 'danger');
+        });
+}
+
+/**
+ * 刷新聊天页面模型列表
+ * 此函数会从OpenAI API获取最新模型列表并保存到数据库
+ */
+function refreshChatModels() {
+    showToast('正在刷新聊天模型列表...', 'info');
+    
+    // 获取当前选中的模型
+    const modelSelect = document.getElementById('model-select');
+    const currentModel = modelSelect.value;
+    
+    // 调用刷新接口，从OpenAI API获取最新模型列表并保存到数据库
+    authenticatedFetch('/api/models/chat?refresh=true')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 重新加载聊天模型列表（从数据库获取）
+                loadChatModels(currentModel);
+                showToast('聊天模型列表刷新成功', 'success');
+            } else {
+                showToast('聊天模型列表刷新失败: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            showToast('聊天模型列表刷新失败: ' + error.message, 'danger');
+        });
+}
+
+/**
+ * 加载聊天模型列表（直接从数据库获取）
+ * 此函数直接从数据库获取模型列表，不调用OpenAI API
+ */
+function loadChatModels(selectedModel = null) {
+    const modelSelect = document.getElementById('model-select');
+    modelSelect.innerHTML = '<option value="">加载中...</option>';
+    
+    // 直接从数据库获取模型列表，不调用OpenAI API
+    authenticatedFetch('/api/models/chat')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modelSelect.innerHTML = '';
+                
+                if (data.data.length === 0) {
+                    modelSelect.innerHTML = '<option value="">暂无可用模型</option>';
+                    return;
+                }
+                
+                data.data.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.model_name;
+                    option.textContent = model.model_name;
+                    modelSelect.appendChild(option);
+                });
+                
+                // 恢复之前选中的模型，如果没有则选择第一个
+                if (selectedModel && data.data.some(model => model.model_name === selectedModel)) {
+                    modelSelect.value = selectedModel;
+                } else if (data.data.length > 0) {
+                    modelSelect.value = data.data[0].model_name;
+                }
+            } else {
+                modelSelect.innerHTML = '<option value="">加载失败</option>';
+                showToast('加载模型列表失败: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            modelSelect.innerHTML = '<option value="">加载失败</option>';
+            showToast('加载模型列表失败: ' + error.message, 'danger');
         });
 }
 
