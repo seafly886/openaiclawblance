@@ -63,19 +63,8 @@ def create_app():
     from app.services.heartbeat_service import heartbeat_service
     heartbeat_service.init_app(app)
     
-    # 在应用上下文中启用心跳检测服务（如果配置为自动启动）
-    @app.before_first_request
-    def start_heartbeat_if_needed():
-        if (app.config.get('HEARTBEAT_ENABLED', True) and
-            app.config.get('HEARTBEAT_AUTO_START', True) and
-            not heartbeat_service.is_running):
-            logger = logging.getLogger(__name__)
-            logger.info("在第一个请求前启用心跳检测服务")
-            success = heartbeat_service.start()
-            if success:
-                logger.info("心跳检测服务启动成功")
-            else:
-                logger.warning("心跳检测服务启动失败")
+    # 注意：before_first_request 装饰器在 Flask 2.3+ 中已被移除
+    # 心跳检测服务现在在 app/main.py 中应用启动时直接初始化
     
     # 错误处理
     @app.errorhandler(404)

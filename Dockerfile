@@ -1,5 +1,5 @@
 # 使用Python 3.10作为基础镜像
-FROM python:3.10-slim
+FROM python:3.10
 
 # 设置工作目录
 WORKDIR /app
@@ -7,17 +7,14 @@ WORKDIR /app
 # 创建数据目录并设置权限
 RUN mkdir -p /data && chmod 777 /data
 
-# 安装系统依赖
-# RUN apt-get update && apt-get install -y \
-#     gcc \
-#     && rm -rf /var/lib/apt/lists/*
-
 # 复制requirements文件
 # 复制所需文件到容器中
 COPY ./requirements.txt /app
 
 # 安装Python依赖
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir psutil==5.9.0 && \
+    pip install --no-cache-dir -r requirements.txt
 
 # 复制应用代码
 COPY ./app /app/app
