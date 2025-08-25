@@ -100,8 +100,8 @@ class OpenAIService:
         获取模型列表
         """
         try:
-            # 使用轮询算法选择Key
-            key = key_rotation.get_key_by_strategy('round_robin')
+            # 使用加权轮询算法选择Key，确保使用次数均衡
+            key = key_rotation.get_key_by_strategy('weighted_round_robin')
             if not key:
                 raise Exception('没有可用的API Key')
             
@@ -114,15 +114,15 @@ class OpenAIService:
         except Exception as e:
             raise Exception(f"获取模型列表失败: {str(e)}")
     
-    def chat_completion(self, messages: List[Dict[str, str]], model: str, 
+    def chat_completion(self, messages: List[Dict[str, str]], model: str,
                        temperature: float = 0.7, max_tokens: int = 1000,
                        **kwargs) -> Dict[str, Any]:
         """
         聊天完成
         """
         try:
-            # 使用轮询算法选择Key
-            key = key_rotation.get_key_by_strategy('round_robin')
+            # 使用加权轮询算法选择Key，确保使用次数均衡
+            key = key_rotation.get_key_by_strategy('weighted_round_robin')
             if not key:
                 raise Exception('没有可用的API Key')
             
@@ -156,8 +156,8 @@ class OpenAIService:
         流式聊天完成
         """
         try:
-            # 使用轮询算法选择Key
-            key = key_rotation.get_key_by_strategy('round_robin')
+            # 使用加权轮询算法选择Key，确保使用次数均衡
+            key = key_rotation.get_key_by_strategy('weighted_round_robin')
             if not key:
                 raise Exception('没有可用的API Key')
 
@@ -183,8 +183,8 @@ class OpenAIService:
         文本完成
         """
         try:
-            # 使用轮询算法选择Key
-            key = key_rotation.get_key_by_strategy('round_robin')
+            # 使用加权轮询算法选择Key，确保使用次数均衡
+            key = key_rotation.get_key_by_strategy('weighted_round_robin')
             if not key:
                 raise Exception('没有可用的API Key')
             
